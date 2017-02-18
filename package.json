@@ -1,0 +1,38 @@
+{
+  "name": "generals-bot",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "ansi-256-colors": "^1.1.0",
+    "babel-cli": "^6.22.2",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "babel-preset-env": "^1.1.8",
+    "babel-preset-stage-3": "^6.22.0",
+    "clear": "^0.0.1",
+    "flow-bin": "^0.38.0",
+    "shortid": "^2.2.6",
+    "socket.io-client": "^1.7.2",
+    "terminal-kit": "^0.26.1"
+  },
+  "scripts": {
+    "start": "babel-node src/index.js",
+    "flow": "flow --color always; test $? -eq 0 -o $? -eq 2"
+  },
+  "babel": {
+    "plugins": [
+      "transform-flow-strip-types"
+    ],
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ],
+      "stage-3"
+    ]
+  }
+}
