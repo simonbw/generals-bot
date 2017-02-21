@@ -24,6 +24,8 @@ export const PLAYER_5_FG = colors.fg.getRgb(5, 5, 0);
 export const PLAYER_6_FG = colors.fg.getRgb(5, 5, 5);
 export const PLAYER_7_FG = colors.fg.getRgb(0, 0, 0);
 
+export const MAP_NUMBERS_FG = colors.fg.getRgb(2, 2, 2);
+
 export function getPlayerBg(playerIndex) {
   switch (playerIndex) {
     case 0:

@@ -1,11 +1,12 @@
 // @flow
 import GameState from './GameState';
 import GeneralsSocket from './GeneralsSocket';
-import SimpleBot from './SimpleBot';
+import AttackBot from './bots/AttackBot';
 import clear from 'clear';
 import { terminal } from 'terminal-kit';
 import config from '../generals-config.json';
 import shortid from 'shortid';
+import TerminalViewer from './viewer/TerminalViewer';
 
 const botId = config.botId || shortid();
 const botName = '[Bot] ' + (config.botName || shortid());
@@ -23,8 +24,9 @@ socket.onConnect(() => {
   socket.joinCustomGame(gameId, true);
 });
 
-let game;
-let bot: SimpleBot;
+let gameState: GameState;
+let bot: AttackBot;
+const viewer = new TerminalViewer();
 
 socket.onGameLost(() => {
   terminal('game lost');
@@ -39,17 +41,17 @@ socket.onGameWon(() => {
 });
 
 socket.onGameStart(({ playerIndex, usernames }) => {
-  game = new GameState([], [], [], playerIndex, [], -1, usernames);
-  bot = new SimpleBot(playerIndex);
+  gameState = new GameState([], [], [], playerIndex, [], -1, usernames);
+  bot = new AttackBot(playerIndex);
 });
 
 socket.onGameUpdate(({ mapDiff, citiesDiff, scores, turn, generals }) => {
-  terminal.eraseDisplay(); // clear screen early to allow for errors to be printed
+  viewer.preUpdate();
   
-  game = game.update(mapDiff, citiesDiff, scores, turn, generals);
-  const move = bot.update(game);
+  gameState = gameState.update(mapDiff, citiesDiff, scores, turn, generals);
+  const move = bot.update(gameState);
   if (move) {
     socket.attack(move);
   }
-  terminal(game.toString());
+  viewer.update(gameState)
 });

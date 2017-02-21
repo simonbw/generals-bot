@@ -1,5 +1,6 @@
 // @flow
 import io from 'socket.io-client';
+import type Tile from './Tile';
 
 class GeneralsSocket {
   userid: string;
@@ -72,15 +73,15 @@ class GeneralsSocket {
       callback({
         citiesDiff: data.cities_diff,
         mapDiff: data.map_diff,
-        generals: data.generals,
+        generals: data._generals,
         scores: data.scores,
         turn: data.turn,
       });
     });
   }
   
-  attack(move: { start: number, end: number, is50?: boolean }) {
-    this.socket.emit('attack', move.start, move.end, move.is50);
+  attack(move: { start: Tile, end: Tile, is50?: boolean }) {
+    this.socket.emit('attack', move.start.index, move.end.index, move.is50);
   }
   
   /**

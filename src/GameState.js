@@ -1,22 +1,21 @@
 // @flow
 import type { MapData, Score } from './game-types';
-import { extractMapHeight, extractMapWidth, patch, extractTiles, getIndex } from './map-util';
+import { extractMapHeight, extractMapWidth, patch, extractTiles, getIndex } from './util/map-util';
 import Tile from './Tile';
-import { getPlayerFg, RESET } from './colors';
 
 /**
  * Represents the state of the game at a point in time.
  */
 class GameState {
-  citiesData: MapData;
-  generals: MapData;
-  mapData: MapData;
+  _citiesData: MapData;
+  _generals: MapData;
+  _mapData: MapData;
   playerIndex: number;
   scores: Score[];
   tiles: Tile[];
   turn: number;
   usernames: string[];
-  previous: ?GameState;
+  _previous: ?GameState;
   
   constructor(
     citiesData: MapData,
@@ -28,24 +27,27 @@ class GameState {
     usernames: string[],
     previous: ?GameState
   ) {
-    this.citiesData = citiesData;
-    this.generals = generals;
-    this.mapData = mapData;
+    this._citiesData = citiesData;
+    this._generals = generals;
+    this._mapData = mapData;
     this.playerIndex = playerIndex;
     this.scores = scores;
     this.turn = turn;
     this.usernames = usernames;
-    this.previous = previous;
+    this._previous = previous;
     
     // Computed properties
     this.tiles = extractTiles(mapData, citiesData, generals, previous ? previous.tiles : null);
   }
   
-  update(mapDiff: MapData, citiesDiff: MapData, scores: Score[], turn: number) {
+  /**
+   * Return a new game state that is the result of applying an update to this state.
+   */
+  update(mapDiff: MapData, citiesDiff: MapData, scores: Score[], turn: number, generals: MapData) {
     return new GameState(
-      patch(this.citiesData, citiesDiff),
-      this.generals,
-      patch(this.mapData, mapDiff),
+      patch(this._citiesData, citiesDiff),
+      generals,
+      patch(this._mapData, mapDiff),
       this.playerIndex,
       scores,
       turn,
@@ -55,16 +57,17 @@ class GameState {
   }
   
   getTileAtCoordinates(x: number, y: number): Tile {
-    return this.getTileAtIndex(getIndex(x, y, this.mapData));
+    return this.getTileAtIndex(getIndex(x, y, this._mapData));
   }
   
   getTileAtIndex(index: number): Tile {
     return this.tiles[index];
   }
   
+  // TODO: Should this be here?
   getAdjacentTiles(tile: Tile): Tile[] {
-    const width = extractMapWidth(this.mapData);
-    const height = extractMapHeight(this.mapData);
+    const width = extractMapWidth(this._mapData);
+    const height = extractMapHeight(this._mapData);
     const x = tile.x;
     const y = tile.y;
     
@@ -74,9 +77,10 @@ class GameState {
     ).map(([x, y]) => this.getTileAtCoordinates(x, y));
   }
   
+  // This is really just here for the toString(). Should I take it out?
   getTileRows(): Tile[][] {
-    const width = extractMapWidth(this.mapData);
-    const height = extractMapHeight(this.mapData);
+    const width = extractMapWidth(this._mapData);
+    const height = extractMapHeight(this._mapData);
     const rows = [];
     for (let y = 0; y < height; y++) {
       const row = [];
@@ -86,26 +90,6 @@ class GameState {
       }
     }
     return rows;
-  }
-  
-  toString() {
-    const indentation = '  ';
-    const tilesString = this.getTileRows()
-      .map((row) => row
-        .map((tile) => tile.toString())
-        .join(''))
-      .map((row) => '  ' + row)
-      .join('\n');
-    
-    const scoreHeader = `${indentation}Army - Tiles - Player`;
-    const scoreString = this.scores
-      .map(({ total, tiles, dead }, i) => ({ total, tiles, dead, i }))
-      .sort((a, b) => (b.dead ? 0 : b.total) - (a.dead ? 0 : a.total))
-      .map(({ total, tiles, i }) => `${getPlayerFg(i)}${total} - ${tiles} - ${this.usernames[i]}${RESET}`)
-      .map((row) => indentation + row) // indent
-      .join('\n');
-    
-    return '\n' + tilesString + '\n' + scoreHeader + '\n' + scoreString + '\n\n';
   }
 }
 
