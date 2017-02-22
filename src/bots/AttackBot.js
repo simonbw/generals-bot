@@ -1,9 +1,10 @@
 // @flow
-import type GameState from '../GameState';
-import type Tile from '../Tile';
+import type GameState from '../game/GameState';
+import type Tile from '../game/Tile';
 import { findPathTo, findPath } from './pathfinding';
 import { choose } from '../util/random';
 import AbstractBot from './AbstractBot';
+import type { Move } from '../game/game-types';
 
 /**
  * This is a simple 1v1 bot.
@@ -14,8 +15,8 @@ class AttackBot extends AbstractBot {
   contactMade: boolean;
   _currentArmyIndex: number;
   
-  constructor(playerIndex: number) {
-    super(playerIndex);
+  constructor(gameState: GameState) {
+    super(gameState);
     this.contactMade = false;
     this._currentArmyIndex = -1;
   }
@@ -54,6 +55,33 @@ class AttackBot extends AbstractBot {
   }
   
   /**
+   * Rank how good an expansion move is.
+   * @param move
+   * @return {*}
+   */
+  getExpansionScore({ start, end }: Move) {
+    // Don't attack cities we can't take
+    if (end.isCity() && start.getArmies() < end.getArmies() + 2) {
+      return -1;
+    }
+    
+    let score = 0;
+    score += start.getArmies();
+    score += Math.random();
+    score += start == this.getCurrentArmy();
+    
+    if (start.isCity()) {
+      score += 5;
+    }
+    if (end.isCity()) {
+      
+      score += 5;
+    }
+    
+    return score;
+  }
+  
+  /**
    * Try to expand.
    */
   expand() {
@@ -61,15 +89,16 @@ class AttackBot extends AbstractBot {
     const expansionMoves = this
       .getPossibleMoves()
       .filter(({ start, end }) => end.isNeutral() && !end.isCity())
-      // TODO: Prefer moving with current army
-      .sort((a, b) => b.start.getArmies() - a.start.getArmies() - Math.random());
+      .sort((a, b) => this.getExpansionScore(a) - this.getExpansionScore(b));
     if (expansionMoves.length > 0) {
       const move = expansionMoves[0];
-      console.log('expanding');
-      if (currentArmy == move.start) {
-        console.log('...with current army');
+      if (this.getExpansionScore(move) < 0) {
+        console.log('expanding');
+        if (currentArmy == move.start) {
+          console.log('...with current army');
+        }
+        return move;
       }
-      return move;
     }
     
     // If we can't immediately expand, move our largest army to the nearest empty space
@@ -96,7 +125,6 @@ class AttackBot extends AbstractBot {
   attack() {
     const start = this.getCurrentArmy();
     if (start) {
-      
       const path = findPath(start, this.getAttackGoal(), this.gameState);
       if (path && path.length > 1) {
         console.log('attacking', path.map((tile) => [tile.x, tile.y]));

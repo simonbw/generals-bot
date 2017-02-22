@@ -1,14 +1,13 @@
 // @flow
-import type { MapData, Score } from '../game-types';
+import type { MapData, Score } from '../game/game-types';
 import { padLeft } from './viewer-utils';
 import { terminal } from 'terminal-kit';
 import { getPlayerBg, getPlayerFg, EMPTY_BG, OBSTACLE_BG, MAP_NUMBERS_FG, FOG_BG, RESET } from './colors';
-import type Tile from '../Tile';
-import type GameState from '../GameState';
+import type Tile from '../game/Tile';
+import type GameState from '../game/GameState';
 
-class ScoreViewer {
+class TerminalScoreViewer {
   constructor() {
-    
   }
   
   getScoreString(scores: Score[], usernames: string[]) {
@@ -24,4 +23,4 @@ class ScoreViewer {
   }
 }
 
-export default ScoreViewer;
+export default TerminalScoreViewer;

@@ -1,6 +1,6 @@
 // @flow
-import type GameState from '../GameState';
-import type Tile from '../Tile';
+import type GameState from '../game/GameState';
+import type Tile from '../game/Tile';
 import PriorityQueue from '../util/PriorityQueue';
 
 export function defaultCost(tile: Tile) {

@@ -1,7 +1,11 @@
 // @flow
 import io from 'socket.io-client';
-import type Tile from './Tile';
+import type Tile from '../game/Tile';
+import type { GameUpdate, GameStart, Move } from '../game/game-types';
 
+/**
+ * Wraps the websocket to provide a typed interface.
+ */
 class GeneralsSocket {
   userid: string;
   username: string;
@@ -38,16 +42,7 @@ class GeneralsSocket {
     this.socket.on('game_lost', callback);
   }
   
-  onGameStart(
-    callback: (
-      data: {
-        playerIndex:number,
-        replayUrl:string,
-        usernames:string[],
-        teams?:number[]
-      }
-    ) => void
-  ) {
+  onGameStart(callback: (gameStart: GameStart) => void) {
     this.socket.on('game_start', (data) => {
       callback({
         playerIndex: data.playerIndex,
@@ -58,17 +53,7 @@ class GeneralsSocket {
     });
   }
   
-  onGameUpdate(
-    callback: (
-      data: {
-        citiesDiff:number[],
-        mapDiff:number[],
-        generals:number[],
-        scores:Object[],
-        turn:number
-      }
-    ) => void
-  ) {
+  onGameUpdate(callback: (gameUpdate: GameUpdate) => void) {
     this.socket.on('game_update', (data) => {
       callback({
         citiesDiff: data.cities_diff,
@@ -80,7 +65,7 @@ class GeneralsSocket {
     });
   }
   
-  attack(move: { start: Tile, end: Tile, is50?: boolean }) {
+  attack(move: Move) {
     this.socket.emit('attack', move.start.index, move.end.index, move.is50);
   }
   
@@ -112,6 +97,8 @@ class GeneralsSocket {
   joinFFA() {
     this.socket.emit('play', this.userid);
   }
+  
+  // TODO: 2v2
   
   leaveGame() {
     this.socket.emit('leave_game');

@@ -1,7 +1,7 @@
 // @flow
-import type { MapData, Score } from './game-types';
-import { extractMapHeight, extractMapWidth, patch, extractTiles, getIndex } from './util/map-util';
-import Tile from './Tile';
+import type { MapData, Score, GameUpdate } from './game-types';
+import { extractMapHeight, extractMapWidth, patch, extractTiles, getIndex } from './map-util';
+import type Tile from './Tile';
 
 /**
  * Represents the state of the game at a point in time.
@@ -10,12 +10,13 @@ class GameState {
   _citiesData: MapData;
   _generals: MapData;
   _mapData: MapData;
+  _previous: ?GameState;
+  
   playerIndex: number;
   scores: Score[];
   tiles: Tile[];
   turn: number;
   usernames: string[];
-  _previous: ?GameState;
   
   constructor(
     citiesData: MapData,
@@ -43,14 +44,14 @@ class GameState {
   /**
    * Return a new game state that is the result of applying an update to this state.
    */
-  update(mapDiff: MapData, citiesDiff: MapData, scores: Score[], turn: number, generals: MapData) {
+  update(gameUpdate: GameUpdate) {
     return new GameState(
-      patch(this._citiesData, citiesDiff),
-      generals,
-      patch(this._mapData, mapDiff),
+      patch(this._citiesData, gameUpdate.citiesDiff),
+      gameUpdate.generals,
+      patch(this._mapData, gameUpdate.mapDiff),
       this.playerIndex,
-      scores,
-      turn,
+      gameUpdate.scores,
+      gameUpdate.turn,
       this.usernames,
       this
     )
@@ -64,10 +65,15 @@ class GameState {
     return this.tiles[index];
   }
   
-  // TODO: Should this be here?
-  getAdjacentTiles(tile: Tile): Tile[] {
+  getMapSize(): [number, number] {
     const width = extractMapWidth(this._mapData);
     const height = extractMapHeight(this._mapData);
+    return [width, height];
+  }
+  
+  // TODO: Should this be here?
+  getAdjacentTiles(tile: Tile): Tile[] {
+    const [width, height] = this.getMapSize();
     const x = tile.x;
     const y = tile.y;
     
@@ -79,8 +85,7 @@ class GameState {
   
   // This is really just here for the toString(). Should I take it out?
   getTileRows(): Tile[][] {
-    const width = extractMapWidth(this._mapData);
-    const height = extractMapHeight(this._mapData);
+    const [width, height] = this.getMapSize();
     const rows = [];
     for (let y = 0; y < height; y++) {
       const row = [];

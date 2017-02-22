@@ -2,10 +2,10 @@
 import { padLeft } from './viewer-utils';
 import { terminal } from 'terminal-kit';
 import { getPlayerBg, getPlayerFg, EMPTY_BG, OBSTACLE_BG, MAP_NUMBERS_FG, FOG_BG, RESET } from './colors';
-import type Tile from '../Tile';
-import type GameState from '../GameState';
+import type Tile from '../game/Tile';
+import type GameState from '../game/GameState';
 
-class MapViewer {
+class TerminalMapViewer {
   constructor() {
     
   }
@@ -62,4 +62,4 @@ class MapViewer {
   }
 }
 
-export default MapViewer;
+export default TerminalMapViewer;

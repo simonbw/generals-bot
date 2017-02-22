@@ -1,6 +1,7 @@
 // @flow
-import type GameState from '../GameState';
-import type Tile from '../Tile';
+import type GameState from '../game/GameState';
+import type Tile from '../game/Tile';
+import CityCounter from './helpers/CityCounter';
 
 /**
  * This is the base class for a bot.
@@ -9,9 +10,11 @@ import type Tile from '../Tile';
 class AbstractBot {
   playerIndex: number;
   gameState: GameState;
+  cityCounter: CityCounter;
   
-  constructor(playerIndex: number) {
-    this.playerIndex = playerIndex;
+  constructor(gameState: GameState) {
+    this.playerIndex = gameState.playerIndex;
+    this.cityCounter = new CityCounter();
   }
   
   /**
@@ -19,6 +22,7 @@ class AbstractBot {
    */
   update(gameState: GameState): ?{ start: Tile, end:Tile } {
     this.gameState = gameState;
+    this.cityCounter.update(gameState);
     return null;
   }
   
@@ -32,7 +36,6 @@ class AbstractBot {
   /**
    * Returns the tile for this player's largest army.
    * Returns null if no armies greater than size 1 are found.
-   * @param gameState
    */
   getLargestArmy(): ?Tile {
     const myTiles = this.getMyUsableTiles();
@@ -43,13 +46,17 @@ class AbstractBot {
     }
   }
   
-  getMedianArmySize() {
-    return 1;
-    // const myTiles = this.getMyTiles();
-    // if (myTiles.length > 0) {
-    //   return myTiles[Math.floor(myTiles.length / 2)].getArmies();
-    // }
-    // return 0;
+  /**
+   * Return the median army size of all my tiles, rounded down.
+   * @param percentile  Which percentile you want to get the value for.
+   *                    Defaults to 0.5 which is the median.
+   */
+  getMedianArmySize(percentile: number = 0.5) {
+    const myTiles = this.getMyTiles();
+    if (myTiles.length > 0) {
+      return myTiles[Math.floor(myTiles.length * percentile)].getArmies();
+    }
+    return 0;
   }
   
   /**
@@ -59,6 +66,10 @@ class AbstractBot {
     return this.gameState.tiles.find((tile) => tile.isGeneral() && tile.owner == this.playerIndex);
   }
   
+  /**
+   * Return a list of tiles
+   * @return {Array.<Tile>}
+   */
   getOpponentGenerals(): Tile[] {
     return this.gameState.tiles.filter((tile) => tile.isGeneral() && (tile.isOpponent(this.playerIndex) || tile.isNeutral()));
   }

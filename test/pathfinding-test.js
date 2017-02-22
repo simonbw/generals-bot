@@ -1,8 +1,8 @@
 // @flow
 import test from 'ava';
 import { findPath } from '../src/bots/pathfinding';
-import Tile from '../src/Tile';
-import GameState from '../src/GameState';
+import Tile from '../src/game/Tile';
+import GameState from '../src/game/GameState';
 
 test('sanity test', (t) => {
   const gameState = new GameState([], [], [], 0, [], 0, [], null);

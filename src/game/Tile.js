@@ -10,14 +10,14 @@ export const FOG_OBSTACLE = -4;
  * A single tile on the map.
  */
 class Tile {
-  armies: number;
-  index: number;
-  owner: Owner;
-  terrain: Terrain;
   x: number;
   y: number;
+  index: number;
+  terrain: Terrain;
+  armies: number;
   fog: boolean;
-  
+  owner: Owner;
+
   constructor(x: number, y: number, index: number, terrain: Terrain, armies: number, fog: boolean, owner: Owner) {
     this.x = x;
     this.y = y;
@@ -60,6 +60,7 @@ class Tile {
     return this.fog;
   }
   
+  // TODO: Should this be here?
   isOpponent(player: number) {
     return this.owner >= 0 && this.owner != player;
   }

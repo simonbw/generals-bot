@@ -1,6 +1,6 @@
 // @flow
-import type { MapData, Terrain } from '../game-types';
-import Tile, { MOUNTAIN, EMPTY, FOG, FOG_OBSTACLE } from '../Tile';
+import type { MapData, Terrain } from './game-types';
+import Tile, { MOUNTAIN, EMPTY, FOG, FOG_OBSTACLE } from './Tile';
 
 /**
  * Get the width of the map from the MapData.
