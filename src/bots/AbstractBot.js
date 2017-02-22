@@ -1,6 +1,7 @@
 // @flow
 import type GameState from '../GameState';
 import type Tile from '../Tile';
+import CityCounter from './helpers/CityCounter';
 
 /**
  * This is the base class for a bot.
@@ -9,9 +10,11 @@ import type Tile from '../Tile';
 class AbstractBot {
   playerIndex: number;
   gameState: GameState;
+  cityCounter: CityCounter;
   
   constructor(playerIndex: number) {
     this.playerIndex = playerIndex;
+    this.cityCounter = new CityCounter();
   }
   
   /**
@@ -19,6 +22,7 @@ class AbstractBot {
    */
   update(gameState: GameState): ?{ start: Tile, end:Tile } {
     this.gameState = gameState;
+    this.cityCounter.update(gameState);
     return null;
   }
   

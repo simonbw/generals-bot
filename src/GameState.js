@@ -1,5 +1,5 @@
 // @flow
-import type { MapData, Score } from './game-types';
+import type { MapData, Score, GameUpdate } from './game-types';
 import { extractMapHeight, extractMapWidth, patch, extractTiles, getIndex } from './util/map-util';
 import Tile from './Tile';
 
@@ -43,14 +43,14 @@ class GameState {
   /**
    * Return a new game state that is the result of applying an update to this state.
    */
-  update(mapDiff: MapData, citiesDiff: MapData, scores: Score[], turn: number, generals: MapData) {
+  update(gameUpdate: GameUpdate) {
     return new GameState(
-      patch(this._citiesData, citiesDiff),
-      generals,
-      patch(this._mapData, mapDiff),
+      patch(this._citiesData, gameUpdate.citiesDiff),
+      gameUpdate.generals,
+      patch(this._mapData, gameUpdate.mapDiff),
       this.playerIndex,
-      scores,
-      turn,
+      gameUpdate.scores,
+      gameUpdate.turn,
       this.usernames,
       this
     )

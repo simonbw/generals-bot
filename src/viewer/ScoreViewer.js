@@ -8,7 +8,6 @@ import type GameState from '../GameState';
 
 class ScoreViewer {
   constructor() {
-    
   }
   
   getScoreString(scores: Score[], usernames: string[]) {

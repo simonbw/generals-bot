@@ -1,6 +1,7 @@
 // @flow
 import io from 'socket.io-client';
 import type Tile from './Tile';
+import type { GameUpdate, GameStart } from './game-types';
 
 class GeneralsSocket {
   userid: string;
@@ -38,16 +39,7 @@ class GeneralsSocket {
     this.socket.on('game_lost', callback);
   }
   
-  onGameStart(
-    callback: (
-      data: {
-        playerIndex:number,
-        replayUrl:string,
-        usernames:string[],
-        teams?:number[]
-      }
-    ) => void
-  ) {
+  onGameStart(callback: (gameStart: GameStart) => void) {
     this.socket.on('game_start', (data) => {
       callback({
         playerIndex: data.playerIndex,
@@ -58,17 +50,7 @@ class GeneralsSocket {
     });
   }
   
-  onGameUpdate(
-    callback: (
-      data: {
-        citiesDiff:number[],
-        mapDiff:number[],
-        generals:number[],
-        scores:Object[],
-        turn:number
-      }
-    ) => void
-  ) {
+  onGameUpdate(callback: (gameUpdate: GameUpdate) => void) {
     this.socket.on('game_update', (data) => {
       callback({
         citiesDiff: data.cities_diff,

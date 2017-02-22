@@ -45,10 +45,10 @@ socket.onGameStart(({ playerIndex, usernames }) => {
   bot = new AttackBot(playerIndex);
 });
 
-socket.onGameUpdate(({ mapDiff, citiesDiff, scores, turn, generals }) => {
+socket.onGameUpdate((gameUpdate) => {
   viewer.preUpdate();
   
-  gameState = gameState.update(mapDiff, citiesDiff, scores, turn, generals);
+  gameState = gameState.update(gameUpdate);
   const move = bot.update(gameState);
   if (move) {
     socket.attack(move);
