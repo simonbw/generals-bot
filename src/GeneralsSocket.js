@@ -73,7 +73,7 @@ class GeneralsSocket {
       callback({
         citiesDiff: data.cities_diff,
         mapDiff: data.map_diff,
-        generals: data._generals,
+        generals: data.generals,
         scores: data.scores,
         turn: data.turn,
       });
