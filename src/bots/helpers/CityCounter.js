@@ -10,22 +10,41 @@ class CityCounter {
   lastScores: Map<number, Score >;
   
   constructor() {
-    this.gains = {};
-    this.lastScores = {};
+    this.gains = new Map();
+    this.lastScores = new Map();
+  }
+  
+  getGainsList(player: number): number[] {
+    return this.gains.get(player) || [];
   }
   
   update(gameState: GameState) {
+    // only check turns where cities grow and land doesn't
+    if (gameState.turn % 2 == 0 && gameState.turn % 50 != 0) {
+      gameState.scores.forEach((score) => {
+        const lastScore = this.lastScores.get(score.i);
+        const gain = score.total - (lastScore ? lastScore.total : 0);
+        this.getGainsList(score.i).push(gain);
+      });
+    }
+    // update all remembered scores
     gameState.scores.forEach((score) => {
-      const lastScore = this.lastScores.get(score.i);
-      const gain = score.total - (lastScore ? lastScore.total : 0);
-      this.gains.get(score.i).push(gain);
       this.lastScores.set(score.i, score);
     });
   }
   
-  getCityCount(player: number) {
-    this.gains.get(i).filter((gain) => gain > 0);
-    return 1;
+  /**
+   * Return an estimate of the number of cities player has, including the general.
+   */
+  getCityCount(player: number): number {
+    const positiveGains = this.getGainsList(player)
+      .slice(-25) // only look at the last few
+      .filter((gain) => gain > 0); // ignore losses
+    positiveGains.sort((a, b) => a - b);
+    if (positiveGains.length == 0) {
+      return 1;
+    }
+    return positiveGains[Math.floor(positiveGains.length * 0.8)];
   }
 }
 
